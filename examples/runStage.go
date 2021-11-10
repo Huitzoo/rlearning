@@ -32,8 +32,6 @@ func main() {
 		if err := startLearning(); err == nil {
 			break
 		}
-		//var second string
-		//fmt.Scanln(&second)
 	}
 
 }

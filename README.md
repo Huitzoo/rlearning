@@ -14,3 +14,6 @@ gocv
 ## Version 📌
 Alpha
 V0.0.1
+
+## Stage
+![alt text](https://github.com/Huitzoo/rlearning/stage.png?raw=true)
