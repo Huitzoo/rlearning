@@ -1,6 +1,10 @@
 # Rlearning
 
-## Starting 
+## Run 
+
+```
+go run examples/runStage.go "obstacles" "./examples/stage3.yml"
+```
 
 ### Pre-requiremets 📋
 

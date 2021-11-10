@@ -7,8 +7,8 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-func NewBasicStages(path string) StageInterface {
-	stage := &ObstacleStage{}
+func NewBasicStages(path, challenge string) StageInterface {
+	stage := FactoryStages(challenge)
 	yamlFile, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)
@@ -20,4 +20,15 @@ func NewBasicStages(path string) StageInterface {
 	}
 
 	return stage
+}
+
+func FactoryStages(challenge string) StageInterface {
+	switch challenge {
+	case "obstacles":
+		return &ObstacleStage{}
+	case "movement":
+		return &BasicStages{}
+	default:
+		return &ObstacleStage{}
+	}
 }
