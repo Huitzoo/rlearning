@@ -21,3 +21,7 @@ V0.0.1
 
 ## Stage
 ![alt text](https://github.com/Huitzoo/rlearning/blob/main/images/stage.png)
+
+## NOTES
+This project is not clean, I have to remove and polish the code xd.
+But it works.
