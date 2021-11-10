@@ -1,20 +1,23 @@
 package qlearning
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
+	"reinforcement/algorithms"
 	"reinforcement/rfmodels"
+
 	"reinforcement/rfmodels/qlearning/components"
+	"reinforcement/rfmodels/qlearning/qtable"
 	"reinforcement/stages"
 	structdata "reinforcement/struct_data"
 	"reinforcement/tools"
-	"time"
 )
 
 type QLearning struct {
 	Stage       stages.StageInterface
 	StageMatrix structdata.TensorTag
-	QTable      *QTable
+	QTable      qtable.QTableInterface
 }
 
 func NewQLearning(stage stages.StageInterface) rfmodels.RFModelInterface {
@@ -23,29 +26,44 @@ func NewQLearning(stage stages.StageInterface) rfmodels.RFModelInterface {
 	return model
 }
 
-func (q *QLearning) LoadStage() {
-	q.QTable = NewQBasicTable(q.Stage)
+func (q *QLearning) LoadStage() bool {
+	qtable := qtable.NewQTable(q.Stage)
+	if qtable != nil {
+		q.QTable = qtable
+		return true
+	}
+	return false
 }
 
 func (q *QLearning) Run() {
 	epochs := q.Stage.GetEpochs()
 	initialState := q.Stage.GetInitialState()
-	exploration := q.Stage.GetExploration()
+	greedlyExploration := q.Stage.GetExploration()
 	sizeGrid := q.Stage.GetSizeState()
 	discountFactor := q.Stage.GetDiscountFactor()
 	alpha := q.Stage.GetAlpha()
 	goalStateID := q.Stage.GetGoalState()
+	currentSteps := 0
+	_ = currentSteps
+	tools.SetSeed()
 
 	for i := 0; i < epochs; i++ {
 		currentState := initialState
+		steps := q.Stage.GetSteps()
 
-		fmt.Println("EPOCH: ", i)
-		for {
-			rand.Seed(time.Now().UTC().UnixNano())
-			randomExploration := rand.Float64()
+		if i != 0 {
+			stepFactor := float64(currentSteps) / float64(steps)
+			greedlyExploration = algorithms.UpdateGreedlyBySteps(stepFactor)
+			//fmt.Println("EPOCH: ", i, "greedlyExploration: ", greedlyExploration, "currentSteps: ", currentSteps, "stepFactor: ", stepFactor)
+		}
+
+		currentSteps = 0
+		for steps != 0 {
+
+			maxExploration := rand.Float64()
 			var action components.Action
 
-			if randomExploration > exploration {
+			if greedlyExploration > maxExploration {
 				action = components.GetRandomAction()
 			} else {
 				action, _ = q.QTable.GetActionWithMaxScore(currentState)
@@ -55,13 +73,14 @@ func (q *QLearning) Run() {
 			currentScore := q.QTable.GetCurrentScore(currentState, action)
 			_, nextMaxScore := q.QTable.GetActionWithMaxScore(nextState)
 
-			newScore := currentScore + alpha*(reward+(discountFactor*nextMaxScore)-currentScore)
-			//fmt.Println(nextMaxScore, alpha, reward, nextMaxScore, discountFactor, currentScore, nextMaxScore)
-			//fmt.Println(newScore)
+			newScore := algorithms.BellManEquation(
+				currentScore, alpha, reward, discountFactor, nextMaxScore,
+			)
 
 			nextStateID := components.CalculateIDStateByCoords(
 				tools.ArrayIntsToCoords(nextState), sizeGrid[0],
 			)
+			fmt.Println("currentState: ", currentState, "action: ", action, "newScore: ", newScore, "nextMaxScore: ", nextMaxScore, "nextState: ", nextState)
 
 			if nextStateID == goalStateID {
 				q.QTable.SetNewScore(currentState, action, 10)
@@ -70,52 +89,40 @@ func (q *QLearning) Run() {
 			q.QTable.SetNewScore(currentState, action, newScore)
 
 			currentState = nextState
+			steps--
+			currentSteps++
 		}
 	}
+	q.QTable.PrintTable()
 }
 
-func (q *QLearning) GetResults() rfmodels.TablesInterface {
-	return nil
-}
-
-func (q *QLearning) PrintTable() {
+func (q *QLearning) ValidateTable() ([]tools.Coords, error) {
 	state := q.Stage.GetInitialState()
 	goalStateID := q.Stage.GetGoalState()
 	coords := tools.ArrayIntsToCoords(state)
 	sizeGrid := q.Stage.GetSizeState()
-
 	currentStateID := components.CalculateIDStateByCoords(coords, sizeGrid[0])
-	maxPrints := 10000
-	counts := 0
+	maxPrints := 500
+	currentWay := []tools.Coords{
+		coords,
+	}
+
 	for currentStateID != goalStateID {
-		if counts == maxPrints {
-			fmt.Println("Error agent cant find way")
-			break
+		if maxPrints == 0 {
+			return nil, errors.New("agent didn't learn the correct away")
+
 		}
-		coords := tools.ArrayIntsToCoords(state)
-		stateID := components.CalculateIDStateByCoords(coords, sizeGrid[0])
-		fmt.Println(state, q.QTable.table[stateID])
-		action, _ := q.QTable.GetSecondBiggerAction(state)
+		action, _ := q.QTable.GetActionWithMaxScore(state)
+
 		//next state calculation
 		nextState, _, _ := q.QTable.Step(action, state)
 		nextCoords := tools.ArrayIntsToCoords(nextState)
+		currentWay = append(currentWay, nextCoords)
 		//set state
 		state = nextState
 		currentStateID = components.CalculateIDStateByCoords(nextCoords, sizeGrid[0])
-		counts++
+		maxPrints--
 	}
 
-	fmt.Println("--------------------------------------------")
-	rows := 0
-	columns := 0
-	for i := 0; i < len(q.QTable.table); i++ {
-
-		if i%components.TotalBasicActions == 0 && i != 0 {
-			rows++
-			columns = 0
-			fmt.Println()
-		}
-		fmt.Print("(", columns, rows, ")", q.QTable.table[i])
-		columns++
-	}
+	return currentWay, nil
 }

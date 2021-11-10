@@ -17,11 +17,12 @@ type BasicStages struct {
 	Punishment     float64   `yaml:"punishment"`
 	Alpha          float64   `yaml:"alpha"`
 	DiscountFactor float64   `yaml:"discount_factor"`
+	Challenge      int64     `yaml:"challenge"`
 }
 
 func (s *BasicStages) GetBadAction() DangerActionStage {
 	var num = len(s.Danger)
-	return func() BadRewardStagePositions {
+	return func() interface{} {
 		num = num - 1
 		if num != -1 {
 			return s.Danger[num]
@@ -63,6 +64,10 @@ func (s *BasicStages) GetGoalState() int {
 	return s.Size[0]*s.Goal[1] + s.Goal[0]
 }
 
+func (s *BasicStages) GetChallenge() int64 {
+	return s.Challenge
+}
+
 func (s *BasicStages) GetInitialState() []int {
 	if len(s.InitialState) == 0 {
 		return []int{rand.Intn(s.Size[0]), rand.Intn(s.Size[0])}
@@ -72,7 +77,8 @@ func (s *BasicStages) GetInitialState() []int {
 }
 
 func (s *BasicStages) GetBoard() board.BoardInterface {
-	board := board.NewBoard(s.Size[0], s.Size[1])
+	boardStage := board.NewBoard(s.Size[0], s.Size[1])
+	boardStage.BackUpInitialBoard()
 
-	return board
+	return boardStage
 }

@@ -1,18 +1,11 @@
 package rfmodels
 
 import (
-	"reinforcement/rfmodels/qlearning/components"
+	"reinforcement/tools"
 )
 
 type RFModelInterface interface {
-	LoadStage()
 	Run()
-	GetResults() TablesInterface
-	PrintTable()
-}
-
-type TablesInterface interface {
-	GetTable() []float64
-	GetStates() []*components.State
-	Step(components.Action, int) (int, float64)
+	LoadStage() bool
+	ValidateTable() ([]tools.Coords, error)
 }

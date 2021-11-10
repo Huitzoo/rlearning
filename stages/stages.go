@@ -8,7 +8,7 @@ import (
 )
 
 func NewBasicStages(path string) StageInterface {
-	stage := &BasicStages{}
+	stage := &ObstacleStage{}
 	yamlFile, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)

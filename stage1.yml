@@ -17,6 +17,7 @@ alpha: 0.7
 initial_state: [0,0]
 goal: [9,9]
 epochs: 100
-exploration: 0
-steps: 400
-discountFactor: 0.13
+exploration: 1
+steps: 200
+discountFactor: 0.132
+challenge: 1 #Cant move with this action to this state

@@ -13,14 +13,17 @@ var (
 
 type BoardInterface interface {
 	CreateBoard(int, int, string)
-	PaintPoint(int, int)
+	PaintPoint(int, int, color.RGBA)
 	ClearBoard()
+	ReturnImageBoard() gocv.Mat
+	BackUpInitialBoard()
 }
 
 type Board struct {
-	board gocv.Mat
-	x, y  int
-	name  string
+	board        gocv.Mat
+	initialBoard gocv.Mat
+	x, y         int
+	name         string
 }
 
 func (b *Board) CreateBoard(x, y int, name string) {
@@ -30,7 +33,7 @@ func (b *Board) CreateBoard(x, y int, name string) {
 	b.y = y
 }
 
-func (b *Board) PaintPoint(x, y int) {
+func (b *Board) PaintPoint(x, y int, color color.RGBA) {
 	pt := image.Point{
 		X: x,
 		Y: y,
@@ -38,17 +41,29 @@ func (b *Board) PaintPoint(x, y int) {
 	gocv.Line(
 		&b.board,
 		pt, pt,
-		blue,
+		color,
 		1,
 	)
 }
 
+func (b *Board) ShowBoard() {
+
+}
+
+func (b *Board) ReturnImageBoard() gocv.Mat {
+	return b.board
+}
+
 func (b *Board) ClearBoard() {
-	b.board = gocv.NewMatWithSize(b.x, b.y, 1)
+	b.board = b.initialBoard
 }
 
 func NewBoard(x, y int) BoardInterface {
 	board := &Board{}
-	board.CreateBoard(x, y, "Board ")
+	board.CreateBoard(x, y, "Board")
 	return board
+}
+
+func (b *Board) BackUpInitialBoard() {
+	//b.board.CopyTo(&b.initialBoard)
 }

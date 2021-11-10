@@ -4,8 +4,7 @@ import (
 	"reinforcement/stages/board"
 )
 
-type BadRewardStagePositions [][]int
-type DangerActionStage func() BadRewardStagePositions
+type DangerActionStage func() interface{}
 type SizeStage []int
 
 type StageInterface interface {
@@ -17,6 +16,7 @@ type StageInterface interface {
 	GetRewardValue() float64
 	GetExploration() float64
 	GetAlpha() float64
+	GetChallenge() int64
 
 	GetSteps() int
 	GetEpochs() int
@@ -26,4 +26,4 @@ type StageInterface interface {
 	GetBoard() board.BoardInterface
 }
 
-type StatesPosition BadRewardStagePositions
+type StatesPosition [][]int

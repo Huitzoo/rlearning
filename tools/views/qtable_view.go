@@ -1,48 +1,26 @@
 package views
 
 import (
-	"fmt"
-	"reinforcement/rfmodels"
-	"reinforcement/rfmodels/qlearning/components"
 	"reinforcement/stages"
+	"reinforcement/stages/board"
+	"reinforcement/tools"
+	"time"
+
+	"gocv.io/x/gocv"
 )
 
-func PrintQTable(q rfmodels.TablesInterface, stage stages.StageInterface) {
-
-	initStateCoords := stage.GetInitialState()
-	size := stage.GetSizeState()
-	nCols := size[0]
-	stateID := nCols*initStateCoords[1] + initStateCoords[0]
-	table := q.GetTable()
-	states := q.GetStates()
-
-	//goalState := stage.GetGoalState()
-
-	for i := 0; i < len(table); i++ {
-		newStateID := nCols * i
-
-		fmt.Println(
-			table[idx:idx+components.TotalBasicActions], action,
-		)
-		fmt.Println(
-			states[stateID].Coords, "->", states[newStateID].Coords,
-		)
-
-		stateID = newStateID
-	}
-
-	//gocv.WaitKey(0)
-}
-
-func getMax(table []float64) components.Action {
-	action := 0
-	valueMin := -99999999999.0
-
-	for doAction, value := range table {
-		if value > valueMin {
-			valueMin = value
-			action = doAction
+func PrintQTable(away []tools.Coords, stage stages.StageInterface) {
+	boardStage := stage.GetBoard()
+	window := gocv.NewWindow("Hello")
+	for {
+		for _, coords := range away {
+			boardStage.PaintPoint(coords.X, coords.Y, board.BLUE)
+			time.Sleep(400 * time.Millisecond)
+			window.IMShow(boardStage.ReturnImageBoard())
+			if window.WaitKey(1) >= 0 {
+				break
+			}
+			//boardStage.ClearBoard()
 		}
 	}
-	return components.Action(action)
 }
