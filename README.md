@@ -1,4 +1,5 @@
 # Rlearning
+Library for reinforcement learning algorithms
 
 ## Run 
 
