@@ -46,16 +46,12 @@ func (b *Board) PaintPoint(x, y int, color color.RGBA) {
 	)
 }
 
-func (b *Board) ShowBoard() {
-
-}
-
 func (b *Board) ReturnImageBoard() gocv.Mat {
 	return b.board
 }
 
 func (b *Board) ClearBoard() {
-	b.board = b.initialBoard
+	b.board = gocv.NewMatWithSize(b.x, b.y, 1)
 }
 
 func NewBoard(x, y int) BoardInterface {

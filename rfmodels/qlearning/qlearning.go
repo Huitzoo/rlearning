@@ -2,7 +2,6 @@ package qlearning
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
 	"reinforcement/algorithms"
 	"reinforcement/rfmodels"
@@ -50,7 +49,7 @@ func (q *QLearning) Run() {
 	for i := 0; i < epochs; i++ {
 		currentState := initialState
 		steps := q.Stage.GetSteps()
-
+		//fmt.Println("EPOCH: ", i)
 		if i != 0 {
 			stepFactor := float64(currentSteps) / float64(steps)
 			greedlyExploration = algorithms.UpdateGreedlyBySteps(stepFactor)
@@ -69,7 +68,7 @@ func (q *QLearning) Run() {
 				action, _ = q.QTable.GetActionWithMaxScore(currentState)
 			}
 
-			nextState, reward, _ := q.QTable.Step(action, currentState)
+			nextState, reward := q.QTable.Step(action, currentState)
 			currentScore := q.QTable.GetCurrentScore(currentState, action)
 			_, nextMaxScore := q.QTable.GetActionWithMaxScore(nextState)
 
@@ -80,7 +79,7 @@ func (q *QLearning) Run() {
 			nextStateID := components.CalculateIDStateByCoords(
 				tools.ArrayIntsToCoords(nextState), sizeGrid[0],
 			)
-			fmt.Println("currentState: ", currentState, "action: ", action, "newScore: ", newScore, "nextMaxScore: ", nextMaxScore, "nextState: ", nextState)
+			//fmt.Println("currentState: ", currentState, "action: ", action, "newScore: ", newScore, "nextMaxScore: ", nextMaxScore, "nextState: ", nextState)
 
 			if nextStateID == goalStateID {
 				q.QTable.SetNewScore(currentState, action, 10)
@@ -93,7 +92,7 @@ func (q *QLearning) Run() {
 			currentSteps++
 		}
 	}
-	q.QTable.PrintTable()
+	//q.QTable.PrintTable()
 }
 
 func (q *QLearning) ValidateTable() ([]tools.Coords, error) {
@@ -115,7 +114,7 @@ func (q *QLearning) ValidateTable() ([]tools.Coords, error) {
 		action, _ := q.QTable.GetActionWithMaxScore(state)
 
 		//next state calculation
-		nextState, _, _ := q.QTable.Step(action, state)
+		nextState, _ := q.QTable.Step(action, state)
 		nextCoords := tools.ArrayIntsToCoords(nextState)
 		currentWay = append(currentWay, nextCoords)
 		//set state
@@ -124,5 +123,6 @@ func (q *QLearning) ValidateTable() ([]tools.Coords, error) {
 		maxPrints--
 	}
 
+	q.QTable.PrintTable()
 	return currentWay, nil
 }

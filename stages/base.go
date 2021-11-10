@@ -23,6 +23,7 @@ type StageInterface interface {
 
 	GetInitialState() []int
 	GetGoalState() int
+
 	GetBoard() board.BoardInterface
 }
 

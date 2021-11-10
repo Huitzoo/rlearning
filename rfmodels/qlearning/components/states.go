@@ -31,7 +31,6 @@ func NewState(row, column, numberOfColumns int) *State {
 		X: column, Y: row,
 	}}
 	state.CalculatePosition(numberOfColumns)
-
 	return state
 }
 

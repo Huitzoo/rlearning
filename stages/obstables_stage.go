@@ -1,7 +1,6 @@
 package stages
 
 import (
-	"fmt"
 	"math/rand"
 	"reinforcement/stages/board"
 )
@@ -85,7 +84,6 @@ func (s *ObstacleStage) GetBoard() board.BoardInterface {
 	for {
 		obstacle := obstacles()
 		state, ok := obstacle.([]int)
-		fmt.Println(obstacle)
 		if !ok {
 			break
 		}

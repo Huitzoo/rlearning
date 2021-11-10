@@ -7,7 +7,7 @@ import (
 )
 
 type QTableInterface interface {
-	Step(components.Action, []int) ([]int, float64, bool)
+	Step(components.Action, []int) ([]int, float64)
 	GetActionWithMaxScore([]int) (components.Action, float64)
 	GetCurrentScore([]int, components.Action) float64
 	SetNewScore([]int, components.Action, float64)

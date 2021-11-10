@@ -35,7 +35,7 @@ func NewQTableWithObstables(stage stages.StageInterface) QTableInterface {
 			break
 		}
 		QTableWithObstables.setStateWithBadRewards(
-			components.NewState(state[0], state[1], columns),
+			components.NewState(state[1], state[0], columns),
 		)
 	}
 
@@ -62,26 +62,24 @@ func (q *QTableWithObstables) SetUpTable() {
 func (q *QTableWithObstables) Step(
 	action components.Action,
 	state []int,
-) ([]int, float64, bool) {
+) ([]int, float64) {
 	coords := tools.ArrayIntsToCoords(state)
 	newCoords := action.OpareteStateWithAction(coords)
-	badState := false
 
 	if !newCoords.ValidateAroundCoords(q.columns, q.rows) {
-		badState = true
-		return state, q.badReward, badState
+		return state, q.badReward
 	}
 
 	reward := q.reward
 
-	newState := []int{newCoords.X, newCoords.Y}
-	stateID := components.CalculateIDStateByCoords(coords, q.columns)
+	nextState := []int{newCoords.X, newCoords.Y}
+	nextStateID := components.CalculateIDStateByCoords(newCoords, q.columns)
 
-	if _, exits := q.badRewards[stateID]; exits {
+	if _, exits := q.badRewards[nextStateID]; exits {
 		reward = q.badReward
 	}
 
-	return newState, reward, badState
+	return nextState, reward
 }
 
 func (q *QTableWithObstables) GetActionWithMaxScore(state []int) (components.Action, float64) {
@@ -142,13 +140,15 @@ func (q *QTableWithObstables) PrintTable() {
 	rows := 0
 	columns := 0
 	for i := 0; i < len(q.table); i++ {
-
 		if i%components.TotalBasicActions == 0 && i != 0 {
-			rows++
-			columns = 0
 			fmt.Println()
 		}
 		fmt.Print("(", columns, rows, ")", q.table[i])
 		columns++
+		if columns == q.columns {
+			columns = 0
+			rows++
+		}
 	}
+	fmt.Println()
 }

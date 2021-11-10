@@ -7,20 +7,33 @@ import (
 	"reinforcement/tools/views"
 )
 
-func main() {
-	stage := stages.NewBasicStages("./stage2.yml")
+func startLearning() error {
+	stage := stages.NewBasicStages("./stage3.yml")
 	model := qlearning.NewQLearning(stage)
 
 	if !model.LoadStage() {
 		fmt.Println("Invalid challenge")
-		return
+		return nil
 	}
 
 	model.Run()
+
 	away, err := model.ValidateTable()
 	if err != nil {
 		fmt.Println("Agent cant learn")
-		return
+		return err
 	}
 	views.PrintQTable(away, stage)
+	return nil
+}
+
+func main() {
+	for {
+		if err := startLearning(); err == nil {
+			break
+		}
+		//var second string
+		//fmt.Scanln(&second)
+	}
+
 }

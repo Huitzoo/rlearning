@@ -69,18 +69,17 @@ func (q *QTable) SetUpTable() {
 func (q *QTable) Step(
 	action components.Action,
 	state []int,
-) ([]int, float64, bool) {
+) ([]int, float64) {
 	coords := tools.ArrayIntsToCoords(state)
-	newCoords := action.OpareteStateWithAction(coords)
-	badState := false
-	if !newCoords.ValidateAroundCoords(q.columns, q.rows) {
-		badState = true
-		return state, q.badReward, badState
+	nextCoords := action.OpareteStateWithAction(coords)
+
+	if !nextCoords.ValidateAroundCoords(q.columns, q.rows) {
+		return state, q.badReward
 	}
 
 	reward := q.reward
 
-	newState := []int{newCoords.X, newCoords.Y}
+	nextState := []int{nextCoords.X, nextCoords.Y}
 	stateID := components.CalculateIDStateByCoords(coords, q.columns)
 
 	if actions, exits := q.badRewards[stateID]; exits {
@@ -89,7 +88,7 @@ func (q *QTable) Step(
 		}
 	}
 
-	return newState, reward, badState
+	return nextState, reward
 }
 
 func (q *QTable) GetActionWithMaxScore(state []int) (components.Action, float64) {
