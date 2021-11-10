@@ -16,4 +16,4 @@ Alpha
 V0.0.1
 
 ## Stage
-![alt text](https://github.com/Huitzoo/rlearning/stage.png?raw=true)
+![alt text](https://github.com/Huitzoo/rlearning/images/stage.png?raw=true)
