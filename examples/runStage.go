@@ -2,13 +2,22 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"reinforcement/rfmodels/qlearning"
 	"reinforcement/stages"
 	"reinforcement/tools/views"
 )
 
 func startLearning() error {
-	stage := stages.NewBasicStages("./stage3.yml")
+	if len(os.Args) < 2 {
+		fmt.Println("You have to put type of challenge and yml stage")
+		return nil
+	}
+
+	challenge := os.Args[1]
+	path := os.Args[2]
+
+	stage := stages.NewBasicStages(path, challenge)
 	model := qlearning.NewQLearning(stage)
 
 	if !model.LoadStage() {
